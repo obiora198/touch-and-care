@@ -2,16 +2,37 @@
 
 import React, { useState } from "react";
 
+interface Errors {
+  name?: string;
+  phone?: string;
+  datetime?: string;
+  massageType?: string;
+}
+
 export default function BookingForm() {
     const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [datetime, setDatetime] = useState("");
   const [massageType, setMassageType] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Errors>({})
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    const newErrors: Errors = {};
+  if (!name || name.trim().length < 2) newErrors.name = "Please enter a valid name.";
+  if (!phone || !/^(\+234|0)[789][01]\d{8}$/.test(phone)) newErrors.phone = "Enter a valid Nigerian phone number.";
+  if (!datetime || new Date(datetime) <= new Date()) newErrors.datetime = "please pick a valid date and time.";
+  if (!massageType) newErrors.massageType = "Please select a massage type.";
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  setErrors({});
 
     const formattedDate = new Date(datetime).toLocaleString("en-GB", {
       weekday: "short",
@@ -46,6 +67,7 @@ export default function BookingForm() {
       onChange={(e) => setName(e.target.value)}
       required
     />
+    {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
   </div>
 
   <div className="space-y-2">
@@ -61,6 +83,7 @@ export default function BookingForm() {
       onChange={(e) => setPhone(e.target.value)}
       required
     />
+    {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
   </div>
 
   <div className="space-y-2">
@@ -79,6 +102,7 @@ export default function BookingForm() {
       <option value="Deep Tissue Massage">Deep Tissue Massage - 90 min (₦15,000)</option>
       <option value="Home Service">Home Service (+₦2,500 transport fee)</option>
     </select>
+    {errors.massageType && <p className="text-red-600 text-sm">{errors.massageType}</p>}
   </div>
 
   <div className="space-y-2">
@@ -93,6 +117,7 @@ export default function BookingForm() {
       onChange={(e) => setDatetime(e.target.value)}
       required
     />
+    {errors.datetime && <p className="text-red-600 text-sm">{errors.datetime}</p>}
   </div>
 
   <div className="pt-2">
